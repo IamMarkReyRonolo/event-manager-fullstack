@@ -1,13 +1,12 @@
 const express = require("express");
-
+const adminController = require("../controller/adminController");
 const router = express.Router();
+const auth = require("../controller/auth");
 
-router.get("/:adminId");
+router.get("/", auth.authenticate, adminController.getAdmin);
 
-router.post("/create");
+router.post("/signIn", adminController.signInAdmin);
 
-router.patch("/:adminId");
-
-router.delete("/:adminId");
+router.post("/signUp", adminController.signUpAdmin);
 
 module.exports = router;
