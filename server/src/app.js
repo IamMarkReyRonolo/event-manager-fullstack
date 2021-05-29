@@ -24,6 +24,15 @@ db.authenticate()
 		console.log(err);
 	});
 
+// API ROUTES
+const adminAPI = require("./api/adminAPI");
+const userAPI = require("./api/userAPI");
+const eventAPI = require("./api/eventAPI");
+
+app.use("/api/admin", adminAPI);
+app.use("/api/user", userAPI);
+app.use("/api/event", eventAPI);
+
 // ERROR HANDLING
 
 app.use((req, res, next) => {
