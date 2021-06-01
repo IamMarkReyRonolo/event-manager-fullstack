@@ -5,6 +5,11 @@ import ApprovedEvents from "../components/UserComponents/ApprovedEvents.vue";
 import DeclinedEvents from "../components/UserComponents/DeclinedEvents.vue";
 import PendingEvents from "../components/UserComponents/PendingEvents.vue";
 
+import AdminView from "../views/AdminView.vue";
+import Requests from "../components/AdminComponents/Requests.vue";
+import Reports from "../components/AdminComponents/Reports.vue";
+import Users from "../components/AdminComponents/Users.vue";
+
 Vue.use(VueRouter);
 
 const routes = [
@@ -28,6 +33,28 @@ const routes = [
 				path: "/pending",
 				name: "PendingEvents",
 				component: PendingEvents,
+			},
+		],
+	},
+	{
+		path: "/admin",
+		name: "AdminView",
+		component: AdminView,
+		children: [
+			{
+				path: "/",
+				name: "Requests",
+				component: Requests,
+			},
+			{
+				path: "/reports",
+				name: "Reports",
+				component: Reports,
+			},
+			{
+				path: "/users",
+				name: "Users",
+				component: Users,
 			},
 		],
 	},
