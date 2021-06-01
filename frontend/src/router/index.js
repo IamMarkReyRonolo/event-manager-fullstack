@@ -10,9 +10,30 @@ import Requests from "../components/AdminComponents/Requests.vue";
 import Reports from "../components/AdminComponents/Reports.vue";
 import Users from "../components/AdminComponents/Users.vue";
 
+import LandingPage from "../views/LandingPageView.vue";
+import UserSignIn from "../components/LandingPageComponents/UserSignIn.vue";
+import AdminSignIn from "../components/LandingPageComponents/AdminSignIn.vue";
+
 Vue.use(VueRouter);
 
 const routes = [
+	{
+		path: "/",
+		name: "LandingPage",
+		component: LandingPage,
+		children: [
+			{
+				path: "/",
+				name: "UserSignIn",
+				component: UserSignIn,
+			},
+			{
+				path: "/adminSign",
+				name: "AdminSignIn",
+				component: AdminSignIn,
+			},
+		],
+	},
 	{
 		path: "/user",
 		name: "UserView",
