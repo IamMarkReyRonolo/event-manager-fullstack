@@ -28,10 +28,12 @@ db.authenticate()
 const adminAPI = require("./api/adminAPI");
 const userAPI = require("./api/userAPI");
 const eventAPI = require("./api/eventAPI");
+const reportAPI = require("./api/reportAPI");
 
 app.use("/api/admin", adminAPI);
 app.use("/api/user", userAPI);
 app.use("/api/event", eventAPI);
+app.use("/api/report", reportAPI);
 
 // ERROR HANDLING
 

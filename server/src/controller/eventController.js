@@ -14,7 +14,10 @@ const getAllEventsAdmin = async (req, res, next) => {
 
 const getAllEventsUser = async (req, res, next) => {
 	try {
-		const events = await models.Event.findAll({ where: { userId: req.user } });
+		const events = await models.Event.findAll({
+			where: { userId: req.user },
+			include: models.Report,
+		});
 		res.status(200).json(events);
 	} catch (error) {
 		next(error);

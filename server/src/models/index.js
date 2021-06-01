@@ -30,6 +30,14 @@ const Event = db.define(
 	{ tableName: "event" }
 );
 
+const Report = db.define(
+	"report",
+	{
+		report_content: DataTypes.STRING,
+	},
+	{ tableName: "report" }
+);
+
 const User = db.define(
 	"user",
 	{
@@ -59,4 +67,7 @@ Event.belongsTo(User, { onDelete: "CASCADE" });
 Admin.hasMany(Event, { onDelete: "CASCADE" });
 Event.belongsTo(Admin, { onDelete: "CASCADE" });
 
-module.exports = { Admin, User, Event };
+Event.hasOne(Report, { onDelete: "CASCADE" });
+Report.belongsTo(Event);
+
+module.exports = { Admin, User, Event, Report };
