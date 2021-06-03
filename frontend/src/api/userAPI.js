@@ -1,5 +1,5 @@
 import axios from "axios";
-const url = "http://localhost:3000/api/user";
+const url = "https://event-manager-serverside.herokuapp.com/api/user";
 axios.defaults.headers.common["auth-token"] =
 	"Bearer " + localStorage.getItem("token");
 
@@ -8,6 +8,7 @@ export default class API {
 		axios.defaults.headers.common["auth-token"] =
 			"Bearer " + localStorage.getItem("token");
 		const users = await axios.get(url + "/all");
+		console.log(users);
 		return users;
 	}
 
@@ -25,6 +26,7 @@ export default class API {
 
 	async createUser(newUser) {
 		const user = await axios.post(url + "/signUp", newUser);
+		console.log(user);
 		return user;
 	}
 

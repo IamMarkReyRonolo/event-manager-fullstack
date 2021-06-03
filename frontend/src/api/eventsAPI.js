@@ -1,5 +1,5 @@
 import axios from "axios";
-const url = "http://localhost:3000/api/event";
+const url = "https://event-manager-serverside.herokuapp.com/api/event";
 axios.defaults.headers.common["auth-token"] =
 	"Bearer " + localStorage.getItem("token");
 

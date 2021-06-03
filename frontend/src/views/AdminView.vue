@@ -10,7 +10,7 @@
 		</div>
 
 		<div v-if="error" class="error">
-			{{ alert("Error") }}
+			{{ error }}
 		</div>
 
 		<div v-if="fetched" class="">
@@ -71,7 +71,7 @@
 															<form
 																action=""
 																enctype="multipart/form-data"
-																@submit="createUser"
+																@submit.prevent="createUser"
 															>
 																<v-card-title>
 																	<div class="div">
@@ -226,6 +226,7 @@
 					this.dialog2 = true;
 					const user = await userAPI.prototype.createUser(this.user);
 					this.dialog2 = false;
+					this.$router.push("/");
 				} catch (error) {
 					this.dialog2 = false;
 					alert(error.message);

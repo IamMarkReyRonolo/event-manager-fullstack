@@ -71,7 +71,7 @@
 															<form
 																action=""
 																enctype="multipart/form-data"
-																@submit="createEvent"
+																@submit.prevent="createEvent"
 															>
 																<v-card-title>
 																	<div class="div">
@@ -300,6 +300,7 @@
 					const event = await eventsAPI.prototype.createEvent(this.event);
 					this.dialog2 = false;
 					this.dialog = false;
+					this.$router.push("/");
 				} catch (error) {
 					this.dialog2 = false;
 					alert(error.message);
