@@ -30,6 +30,9 @@ const userAPI = require("./api/userAPI");
 const eventAPI = require("./api/eventAPI");
 const reportAPI = require("./api/reportAPI");
 
+app.get("/", (req, res) => {
+	res.status(200).json({ message: "Server is up!" });
+});
 app.use("/api/admin", adminAPI);
 app.use("/api/user", userAPI);
 app.use("/api/event", eventAPI);
