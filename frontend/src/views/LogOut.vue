@@ -24,7 +24,20 @@
 				setTimeout(() => {
 					localStorage.removeItem("token");
 					this.load = false;
-					this.$router.push("/adminSign");
+
+					if (
+						localStorage.getItem("historyRoute") == "/admin" ||
+						localStorage.getItem("historyRoute") == "/users" ||
+						localStorage.getItem("historyRoute") == "/reports"
+					) {
+						this.$router.push("/adminSign");
+					} else if (
+						localStorage.getItem("historyRoute") == "/user" ||
+						localStorage.getItem("historyRoute") == "/declined" ||
+						localStorage.getItem("historyRoute") == "/pending"
+					) {
+						this.$router.push("/");
+					}
 				}, 1000);
 			},
 		},
