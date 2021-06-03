@@ -2,7 +2,7 @@
 	<div class="userSignIn">
 		<div class="con">
 			<v-card light max-width="400">
-				<form action="" enctype="multipart/form-data">
+				<form action="" enctype="multipart/form-data" @submit.prevent="signIn">
 					<v-card-title>
 						<div class="div">
 							<h1>Sign in User</h1>
@@ -15,6 +15,7 @@
 									<v-text-field
 										label="Username*"
 										required
+										v-model="user.username"
 										dense
 										outlined
 									></v-text-field>
@@ -23,6 +24,7 @@
 								<v-col cols="12">
 									<v-text-field
 										label="Password*"
+										v-model="user.password"
 										required
 										type="password"
 										dense
@@ -70,8 +72,53 @@
 </template>
 
 <script>
+	import userAPI from "../../api/userAPI";
+
 	export default {
-		data: () => ({}),
+		data: () => ({
+			user: {
+				username: "",
+				password: "",
+			},
+			dialog2: false,
+		}),
+		methods: {
+			async signIn() {
+				try {
+					this.dialog2 = true;
+					const user = await userAPI.prototype.signInUser(this.user);
+
+					this.dialog2 = false;
+
+					localStorage.setItem("token", user.data.user.token);
+					this.$router.push("/user");
+				} catch (error) {
+					this.dialog2 = false;
+					if (error.message == "Network Error") {
+						alert(error.message);
+					} else {
+						alert("Email or Password is incorrect!");
+					}
+				}
+			},
+		},
+		created() {
+			if (localStorage.getItem("token")) {
+				if (
+					localStorage.getItem("historyRoute") == "/admin" ||
+					localStorage.getItem("historyRoute") == "/users" ||
+					localStorage.getItem("historyRoute") == "/reports"
+				) {
+					this.$router.push("/admin");
+				} else if (
+					localStorage.getItem("historyRoute") == "/user" ||
+					localStorage.getItem("historyRoute") == "/declined" ||
+					localStorage.getItem("historyRoute") == "/pending"
+				) {
+					this.$router.push("/user");
+				}
+			}
+		},
 	};
 </script>
 

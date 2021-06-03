@@ -13,7 +13,7 @@
 			error
 		</div>
 
-		<div v-if="true" class="main">
+		<div v-if="fetched" class="main">
 			<div class="headings">
 				<h1>Event Requests</h1>
 				<div class="options">
@@ -26,298 +26,313 @@
 				</div>
 			</div>
 			<div class="mainContent" v-if="undone">
-				<v-card class="activity" dark v-for="n in 5" :key="n">
-					<div class="actHeader">
-						<h1>TEAM BUILDING</h1>
-						<v-chip class="ma-2" color="grey darken-3" dark>
-							Mark Rey Ronolo
-						</v-chip>
-						<v-spacer></v-spacer>
-						<div class="buttons">
-							<v-dialog persistent max-width="290">
-								<template v-slot:activator="{ on, attrs }">
-									<v-btn
-										class="success"
-										fab
-										x-small
-										dark
-										v-bind="attrs"
-										v-on="on"
-										outlined
-										><v-icon> mdi-briefcase-upload-outline</v-icon></v-btn
-									>
-								</template>
-
-								<template v-slot:default="dialog">
-									<v-card light class="deleteCon">
-										<v-card-title class="headline">
-											Approve Event?
-										</v-card-title>
-										<v-card-text
-											>Are you really sure you want to approve this
-											proposal?</v-card-text
+				<div class="penAct" v-if="pendingActivities.length > 0">
+					<v-card
+						class="activity"
+						dark
+						v-for="event in pendingActivities"
+						:key="event.id"
+					>
+						<div class="actHeader">
+							<h1>{{ event.event_name }}</h1>
+							<v-chip class="ma-2" color="grey darken-3" dark>
+								{{ event.user.fullname }}
+							</v-chip>
+							<v-spacer></v-spacer>
+							<div class="buttons">
+								<v-dialog persistent max-width="290">
+									<template v-slot:activator="{ on, attrs }">
+										<v-btn
+											class="success"
+											fab
+											x-small
+											dark
+											v-bind="attrs"
+											v-on="on"
+											outlined
+											><v-icon> mdi-briefcase-upload-outline</v-icon></v-btn
 										>
-										<v-card-actions>
-											<v-spacer></v-spacer>
-											<v-btn
-												color="black darken-1"
-												text
-												@click="dialog.value = false"
-											>
-												Cancel
-											</v-btn>
+									</template>
 
-											<v-btn
-												:disabled="deleingEvent"
-												:loading="deleingEvent"
-												class="white--text"
-												color="green darken-1"
-												text
-												type="submit"
+									<template v-slot:default="dialog">
+										<v-card light class="deleteCon">
+											<v-card-title class="headline">
+												Approve Event?
+											</v-card-title>
+											<v-card-text
+												>Are you really sure you want to approve this
+												proposal?</v-card-text
 											>
-												Agree
-											</v-btn>
-											<v-dialog
-												v-model="deleingEvent"
-												hide-overlay
-												persistent
-												width="300"
-											>
-												<v-card color="white" light>
-													<v-card-text>
-														<p mt-5>
-															Deleting product. Please wait.
-														</p>
-														<v-progress-linear
-															indeterminate
-															color="black"
-															class="mb-0 mt-5"
-														></v-progress-linear>
-													</v-card-text>
-												</v-card>
-											</v-dialog>
-										</v-card-actions>
-									</v-card>
-								</template>
-							</v-dialog>
+											<v-card-actions>
+												<v-spacer></v-spacer>
+												<v-btn
+													color="black darken-1"
+													text
+													@click="dialog.value = false"
+												>
+													Cancel
+												</v-btn>
 
-							<v-dialog persistent max-width="290">
-								<template v-slot:activator="{ on, attrs }">
-									<v-btn
-										class="error"
-										fab
-										x-small
-										dark
-										v-bind="attrs"
-										v-on="on"
-										outlined
-										><v-icon> mdi-close-outline</v-icon></v-btn
-									>
-								</template>
+												<v-btn
+													:disabled="deleingEvent"
+													:loading="deleingEvent"
+													class="white--text"
+													color="green darken-1"
+													text
+													@click="updateEvent(event, dialog, 'Accepted')"
+												>
+													Agree
+												</v-btn>
+												<v-dialog
+													v-model="deleingEvent"
+													hide-overlay
+													persistent
+													width="300"
+												>
+													<v-card color="white" light>
+														<v-card-text>
+															<p mt-5>
+																Updating event. Please wait.
+															</p>
+															<v-progress-linear
+																indeterminate
+																color="black"
+																class="mb-0 mt-5"
+															></v-progress-linear>
+														</v-card-text>
+													</v-card>
+												</v-dialog>
+											</v-card-actions>
+										</v-card>
+									</template>
+								</v-dialog>
 
-								<template v-slot:default="dialog">
-									<v-card light class="deleteCon">
-										<v-card-title class="headline">
-											Decline Event?
-										</v-card-title>
-										<v-card-text
-											>Are you really sure you want to decline this
-											proposal?</v-card-text
+								<v-dialog persistent max-width="290">
+									<template v-slot:activator="{ on, attrs }">
+										<v-btn
+											class="error"
+											fab
+											x-small
+											dark
+											v-bind="attrs"
+											v-on="on"
+											outlined
+											><v-icon> mdi-close-outline</v-icon></v-btn
 										>
-										<v-card-actions>
-											<v-spacer></v-spacer>
-											<v-btn
-												color="black darken-1"
-												text
-												@click="dialog.value = false"
-											>
-												Cancel
-											</v-btn>
+									</template>
 
-											<v-btn
-												:disabled="deleingEvent"
-												:loading="deleingEvent"
-												class="white--text"
-												color="red darken-1"
-												text
-												type="submit"
+									<template v-slot:default="dialog">
+										<v-card light class="deleteCon">
+											<v-card-title class="headline">
+												Decline Event?
+											</v-card-title>
+											<v-card-text
+												>Are you really sure you want to decline this
+												proposal?</v-card-text
 											>
-												Agree
-											</v-btn>
-											<v-dialog
-												v-model="deleingEvent"
-												hide-overlay
-												persistent
-												width="300"
-											>
-												<v-card color="white" light>
-													<v-card-text>
-														<p mt-5>
-															Deleting product. Please wait.
-														</p>
-														<v-progress-linear
-															indeterminate
-															color="black"
-															class="mb-0 mt-5"
-														></v-progress-linear>
-													</v-card-text>
-												</v-card>
-											</v-dialog>
-										</v-card-actions>
-									</v-card>
-								</template>
-							</v-dialog>
+											<v-card-actions>
+												<v-spacer></v-spacer>
+												<v-btn
+													color="black darken-1"
+													text
+													@click="dialog.value = false"
+												>
+													Cancel
+												</v-btn>
+
+												<v-btn
+													:disabled="deleingEvent"
+													:loading="deleingEvent"
+													class="white--text"
+													color="red darken-1"
+													text
+													@click="updateEvent(event, dialog, 'Declined')"
+												>
+													Agree
+												</v-btn>
+												<v-dialog
+													v-model="deleingEvent"
+													hide-overlay
+													persistent
+													width="300"
+												>
+													<v-card color="white" light>
+														<v-card-text>
+															<p mt-5>
+																Updating event. Please wait.
+															</p>
+															<v-progress-linear
+																indeterminate
+																color="black"
+																class="mb-0 mt-5"
+															></v-progress-linear>
+														</v-card-text>
+													</v-card>
+												</v-dialog>
+											</v-card-actions>
+										</v-card>
+									</template>
+								</v-dialog>
+							</div>
 						</div>
-					</div>
-					<div class="actBody">
-						<p>
-							The Human Resource Department of ABC Company will conduct a team
-							building in order to boost chemistry among workers in order to
-							boost their performance. Moreover, this aims to promote peace in
-							the workplace
-						</p>
-					</div>
-					<div class="actFooter">
-						<v-chip class="ma-2" color="grey darken-3" dark>
-							<v-icon left>
-								mdi-map-marker
-							</v-icon>
-							ALMENDRAS GYM, DAVAO CITY
-						</v-chip>
+						<div class="actBody">
+							<p>
+								{{ event.event_description }}
+							</p>
+						</div>
+						<div class="actFooter">
+							<v-chip class="ma-2" color="grey darken-3" dark>
+								<v-icon left>
+									mdi-map-marker
+								</v-icon>
+								{{ event.event_location }}
+							</v-chip>
 
-						<v-chip class="ma-2" color="grey darken-3" dark>
-							<v-icon left>
-								mdi-calendar
-							</v-icon>
-							MAY 30, 2020
-						</v-chip>
+							<v-chip class="ma-2" color="grey darken-3" dark>
+								<v-icon left>
+									mdi-calendar
+								</v-icon>
+								{{ event.event_date }}
+							</v-chip>
 
-						<v-chip class="ma-2" color="grey darken-3" dark>
-							<v-icon left>
-								mdi-cash
-							</v-icon>
-							P 20,000.00
-						</v-chip>
-					</div>
-				</v-card>
+							<v-chip class="ma-2" color="grey darken-3" dark>
+								<v-icon left>
+									mdi-cash
+								</v-icon>
+								P {{ event.event_budget }}
+							</v-chip>
+						</div>
+					</v-card>
+				</div>
+
+				<div class="penAct" v-if="pendingActivities.length == 0">
+					<h2>Empty</h2>
+				</div>
 			</div>
 
 			<div class="mainContent" v-if="!undone">
-				<v-card class="activity" dark v-for="n in 5" :key="n">
-					<div class="actHeader">
-						<h1>TEAM BUILDING</h1>
-						<v-chip class="ma-2" color="grey darken-3" dark>
-							Mark Rey Ronolo
-						</v-chip>
-						<v-spacer></v-spacer>
-						<div class="buttons">
-							<v-dialog persistent max-width="290">
-								<template v-slot:activator="{ on, attrs }">
-									<v-btn
-										class="error"
-										fab
-										x-small
-										dark
-										v-bind="attrs"
-										v-on="on"
-										outlined
-										><v-icon> mdi-trash-can-outline</v-icon></v-btn
-									>
-								</template>
-
-								<template v-slot:default="dialog">
-									<v-card light class="deleteCon">
-										<v-card-title class="headline">
-											Delete Event?
-										</v-card-title>
-										<v-card-text
-											>Are you really sure you want to delete this
-											event?</v-card-text
+				<div class="accAct" v-if="acceptedActivities.length > 0">
+					<v-card
+						class="activity"
+						dark
+						v-for="event in acceptedActivities"
+						:key="event.id"
+					>
+						<div class="actHeader">
+							<h1>{{ event.event_name }}</h1>
+							<v-chip class="ma-2" color="grey darken-3" dark>
+								{{ event.user.fullname }}
+							</v-chip>
+							<v-spacer></v-spacer>
+							<div class="buttons">
+								<v-dialog persistent max-width="290">
+									<template v-slot:activator="{ on, attrs }">
+										<v-btn
+											class="error"
+											fab
+											x-small
+											dark
+											v-bind="attrs"
+											v-on="on"
+											outlined
+											><v-icon> mdi-trash-can-outline</v-icon></v-btn
 										>
-										<v-card-actions>
-											<v-spacer></v-spacer>
-											<v-btn
-												color="black darken-1"
-												text
-												@click="dialog.value = false"
-											>
-												Cancel
-											</v-btn>
+									</template>
 
-											<v-btn
-												:disabled="deleingEvent"
-												:loading="deleingEvent"
-												class="white--text"
-												color="red darken-1"
-												text
-												type="submit"
+									<template v-slot:default="dialog">
+										<v-card light class="deleteCon">
+											<v-card-title class="headline">
+												Delete Event?
+											</v-card-title>
+											<v-card-text
+												>Are you really sure you want to delete this
+												event?</v-card-text
 											>
-												Agree
-											</v-btn>
-											<v-dialog
-												v-model="deleingEvent"
-												hide-overlay
-												persistent
-												width="300"
-											>
-												<v-card color="white" light>
-													<v-card-text>
-														<p mt-5>
-															Deleting product. Please wait.
-														</p>
-														<v-progress-linear
-															indeterminate
-															color="black"
-															class="mb-0 mt-5"
-														></v-progress-linear>
-													</v-card-text>
-												</v-card>
-											</v-dialog>
-										</v-card-actions>
-									</v-card>
-								</template>
-							</v-dialog>
+											<v-card-actions>
+												<v-spacer></v-spacer>
+												<v-btn
+													color="black darken-1"
+													text
+													@click="dialog.value = false"
+												>
+													Cancel
+												</v-btn>
+
+												<v-btn
+													:disabled="deleingEvent"
+													:loading="deleingEvent"
+													class="white--text"
+													color="red darken-1"
+													text
+													@click="deleteEvent(event, dialog)"
+												>
+													Agree
+												</v-btn>
+												<v-dialog
+													v-model="deleingEvent"
+													hide-overlay
+													persistent
+													width="300"
+												>
+													<v-card color="white" light>
+														<v-card-text>
+															<p mt-5>
+																Deleting product. Please wait.
+															</p>
+															<v-progress-linear
+																indeterminate
+																color="black"
+																class="mb-0 mt-5"
+															></v-progress-linear>
+														</v-card-text>
+													</v-card>
+												</v-dialog>
+											</v-card-actions>
+										</v-card>
+									</template>
+								</v-dialog>
+							</div>
 						</div>
-					</div>
-					<div class="actBody">
-						<p>
-							The Human Resource Department of ABC Company will conduct a team
-							building in order to boost chemistry among workers in order to
-							boost their performance. Moreover, this aims to promote peace in
-							the workplace
-						</p>
-					</div>
-					<div class="actFooter">
-						<v-chip class="ma-2" color="grey darken-3" dark>
-							<v-icon left>
-								mdi-map-marker
-							</v-icon>
-							ALMENDRAS GYM, DAVAO CITY
-						</v-chip>
+						<div class="actBody">
+							<p>
+								{{ event.event_description }}
+							</p>
+						</div>
+						<div class="actFooter">
+							<v-chip class="ma-2" color="grey darken-3" dark>
+								<v-icon left>
+									mdi-map-marker
+								</v-icon>
+								{{ event.event_location }}
+							</v-chip>
 
-						<v-chip class="ma-2" color="grey darken-3" dark>
-							<v-icon left>
-								mdi-calendar
-							</v-icon>
-							MAY 30, 2020
-						</v-chip>
+							<v-chip class="ma-2" color="grey darken-3" dark>
+								<v-icon left>
+									mdi-calendar
+								</v-icon>
+								{{ event.event_date }}
+							</v-chip>
 
-						<v-chip class="ma-2" color="grey darken-3" dark>
-							<v-icon left>
-								mdi-cash
-							</v-icon>
-							P 20,000.00
-						</v-chip>
-					</div>
-				</v-card>
+							<v-chip class="ma-2" color="grey darken-3" dark>
+								<v-icon left>
+									mdi-cash
+								</v-icon>
+								P {{ event.event_budget }}
+							</v-chip>
+						</div>
+					</v-card>
+				</div>
+				<div class="accAct" v-if="acceptedActivities.length == 0">
+					<h2>Empty</h2>
+				</div>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script>
+	import eventsAPI from "../../api/eventsAPI";
 	export default {
-		name: "DeclinedEvents",
 		data: () => ({
 			load: false,
 			error: null,
@@ -326,7 +341,90 @@
 			menu2: false,
 			deleingEvent: false,
 			undone: true,
+			events: [],
 		}),
+
+		methods: {
+			async getEvents() {
+				try {
+					this.load = true;
+					const events = await eventsAPI.prototype.getEventsAsAdmin();
+
+					this.events = events.data;
+
+					this.fetched = this.events;
+					this.load = false;
+				} catch (error) {
+					this.error = error;
+					this.loading = false;
+				}
+			},
+
+			async updateEvent(event, dialog, status) {
+				try {
+					this.deleingEvent = true;
+
+					const data = {
+						id: event.id,
+						event_name: event.event_name,
+						event_date: event.event_date,
+						event_location: event.event_location,
+						event_budget: event.event_budget,
+						event_description: event.event_description,
+						event_status: status,
+					};
+					const ev = await eventsAPI.prototype.updateEvent(data);
+
+					this.deleingEvent = false;
+					dialog.value = false;
+
+					if (ev.data.message == "Successfully updated event.") {
+						event.event_status = status;
+					}
+				} catch (error) {
+					this.error = error;
+					this.deleingEvent = false;
+				}
+			},
+
+			async deleteEvent(event, dialog) {
+				try {
+					this.deleingEvent = true;
+					const ev = await eventsAPI.prototype.deleteEvent(event.id);
+
+					this.deleingEvent = false;
+					dialog.value = false;
+
+					if (ev.data.message == "Successfully deleted event.") {
+						event.event_status = "Deleted";
+					}
+				} catch (error) {
+					this.error = error;
+					this.deleingEvent = false;
+				}
+			},
+		},
+
+		async created() {
+			await this.getEvents();
+		},
+
+		computed: {
+			pendingActivities: function() {
+				return this.events.filter((event) => {
+					if (event.event_status == "Pending") {
+						return event;
+					}
+				});
+			},
+			acceptedActivities: function() {
+				return this.events.filter((event) => {
+					if (event.event_status == "Accepted") {
+						return event;
+					}
+				});
+			},
+		},
 	};
 </script>
 
@@ -409,5 +507,13 @@
 	.active {
 		background-color: #1e1e1e;
 		color: #e1e1e1;
+	}
+
+	.penAct h2 {
+		text-align: center;
+	}
+
+	.accAct h2 {
+		text-align: center;
 	}
 </style>

@@ -1,33 +1,49 @@
 <template>
 	<div class="users">
-		<v-card-title>
-			<div class="headings">
-				Reports
-				<div class="inner">
-					<v-text-field
-						v-model="search"
-						append-icon="mdi-magnify"
-						label="Search"
-						single-line
-						hide-details
-					></v-text-field>
-					<v-spacer></v-spacer>
+		<div v-if="load" class="loading">
+			<v-progress-circular
+				:size="70"
+				:width="7"
+				color="black"
+				indeterminate
+			></v-progress-circular>
+		</div>
+
+		<div v-if="error" class="error">
+			error
+		</div>
+
+		<div v-if="fetched" class="main">
+			<v-card-title>
+				<div class="headings">
+					Reports
+					<div class="inner">
+						<v-text-field
+							v-model="search"
+							append-icon="mdi-magnify"
+							label="Search"
+							single-line
+							hide-details
+						></v-text-field>
+						<v-spacer></v-spacer>
+					</div>
 				</div>
-			</div>
-		</v-card-title>
-		<v-data-table
-			v-model="selected"
-			:headers="headers"
-			:items="users"
-			item-key="user"
-			class="elevation-1"
-			:search="search"
-		>
-		</v-data-table>
+			</v-card-title>
+			<v-data-table
+				:headers="headers"
+				:items="reports"
+				item-key="id"
+				class="elevation-1"
+				:search="search"
+			>
+			</v-data-table>
+		</div>
 	</div>
 </template>
 
 <script>
+	import reportsAPI from "../../api/reportsAPI";
+
 	export default {
 		data() {
 			return {
@@ -36,89 +52,65 @@
 				headers: [
 					{
 						text: "User",
-						align: "start",
 						sortable: true,
 						value: "user",
+						width: "20%",
+						align: "center",
 					},
-					{ text: "Event Title", value: "eventTitle" },
-					{ text: "Date Reported", value: "date" },
+					{
+						text: "Event Title",
+						value: "eventTitle",
+						sortable: true,
+						width: "20%",
+						align: "center",
+					},
+					{
+						text: "Date Reported",
+						value: "date",
+						sortable: true,
+						width: "20%",
+						align: "center",
+					},
 					{ text: "Report", value: "report" },
+					{ text: "Report Id", value: "id", align: " d-none" },
 				],
-				users: [
-					{
-						user: "Mark Rey Ronolos",
-						eventTitle: "Team Building",
-						date: "06-01-21",
-						report:
-							"Lorem ipsum dolor sit amet consectetur adipisicing elit. Provident" +
-							"optio mollitia nemo odio vitae vero iusto unde, harum recusandae" +
-							"placeat aliquam facilis tempore sequi minus, earum modi, quae impedit" +
-							"ullam quaerat rem maxime. Numquam nemo, odio molestiae inventore quia " +
-							"praesentium?",
-					},
-					{
-						user: "Mark Rey Ronolod",
-						eventTitle: "Team Building",
-						date: "06-01-21",
-						report:
-							"Lorem ipsum dolor sit amet consectetur adipisicing elit. Provident" +
-							"optio mollitia nemo odio vitae vero iusto unde, harum recusandae" +
-							"placeat aliquam facilis tempore sequi minus, earum modi, quae impedit" +
-							"ullam quaerat rem maxime. Numquam nemo, odio molestiae inventore quia " +
-							"praesentium?",
-					},
-					{
-						user: "Mark Rey Ronolof",
-						eventTitle: "Team Building",
-						date: "06-01-21",
-						report:
-							"Lorem ipsum dolor sit amet consectetur adipisicing elit. Provident" +
-							"optio mollitia nemo odio vitae vero iusto unde, harum recusandae" +
-							"placeat aliquam facilis tempore sequi minus, earum modi, quae impedit" +
-							"ullam quaerat rem maxime. Numquam nemo, odio molestiae inventore quia " +
-							"praesentium?",
-					},
-					{
-						user: "Mark Rey Ronolog",
-						eventTitle: "Team Building",
-						date: "06-01-21",
-						report:
-							"Lorem ipsum dolor sit amet consectetur adipisicing elit. Provident" +
-							"optio mollitia nemo odio vitae vero iusto unde, harum recusandae" +
-							"placeat aliquam facilis tempore sequi minus, earum modi, quae impedit" +
-							"ullam quaerat rem maxime. Numquam nemo, odio molestiae inventore quia " +
-							"praesentium?",
-					},
-					{
-						user: "Mark Rey Ronoloq",
-						eventTitle: "Team Building",
-						date: "06-01-21",
-						report:
-							"Lorem ipsum dolor sit amet consectetur adipisicing elit. Provident" +
-							"optio mollitia nemo odio vitae vero iusto unde, harum recusandae" +
-							"placeat aliquam facilis tempore sequi minus, earum modi, quae impedit" +
-							"ullam quaerat rem maxime. Numquam nemo, odio molestiae inventore quia " +
-							"praesentium?",
-					},
-					{
-						user: "Mark Rey Ronolow",
-						eventTitle: "Team Building",
-						date: "06-01-21",
-						report:
-							"Lorem ipsum dolor sit amet consectetur adipisicing elit. Provident" +
-							"optio mollitia nemo odio vitae vero iusto unde, harum recusandae" +
-							"placeat aliquam facilis tempore sequi minus, earum modi, quae impedit" +
-							"ullam quaerat rem maxime. Numquam nemo, odio molestiae inventore quia " +
-							"praesentium?",
-					},
-				],
+				reports: [],
+				load: false,
+				fetched: null,
+				error: null,
 			};
 		},
 
-		computed: {
-			getSelected() {
-				console.log(this.selected);
+		methods: {
+			async getReports() {
+				try {
+					this.load = true;
+					const reports = await reportsAPI.prototype.getReports();
+					this.reports = reports.data.map((report, index) => {
+						return {
+							user: report.event.user.fullname,
+							eventTitle: report.event.event_name,
+							date:
+								new Date(report.createdAt).toString().split(" ")[1] +
+								" " +
+								new Date(report.createdAt).toString().split(" ")[2] +
+								", " +
+								new Date(report.createdAt).toString().split(" ")[3],
+							report: report.report_content,
+							id: index,
+						};
+					});
+					this.fetched = this.reports;
+					this.load = false;
+				} catch (error) {
+					this.error = error;
+					this.loading = false;
+				}
 			},
+		},
+
+		created() {
+			this.getReports();
 		},
 	};
 </script>
@@ -146,5 +138,13 @@
 
 	.v-btn {
 		margin: 0px 10px;
+	}
+
+	.loading {
+		font-weight: bold;
+		text-align: center;
+		font-size: 20px;
+		padding: 20px;
+		margin: auto;
 	}
 </style>

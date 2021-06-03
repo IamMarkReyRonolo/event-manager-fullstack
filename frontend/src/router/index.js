@@ -14,12 +14,13 @@ import LandingPage from "../views/LandingPageView.vue";
 import UserSignIn from "../components/LandingPageComponents/UserSignIn.vue";
 import AdminSignIn from "../components/LandingPageComponents/AdminSignIn.vue";
 
+import LogOut from "../views/LogOut.vue";
+
 Vue.use(VueRouter);
 
 const routes = [
 	{
 		path: "/",
-		name: "LandingPage",
 		component: LandingPage,
 		children: [
 			{
@@ -34,11 +35,10 @@ const routes = [
 			},
 		],
 	},
+	{ path: "/logout", name: "LogOut", component: LogOut },
 	{
 		path: "/user",
-		name: "UserView",
 		component: UserView,
-
 		children: [
 			{
 				path: "/",
@@ -59,7 +59,6 @@ const routes = [
 	},
 	{
 		path: "/admin",
-		name: "AdminView",
 		component: AdminView,
 		children: [
 			{
