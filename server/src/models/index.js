@@ -62,7 +62,7 @@ Admin.hasMany(User, { onDelete: "CASCADE" });
 User.belongsTo(Admin, { onDelete: "CASCADE" });
 
 User.hasMany(Event, { onDelete: "CASCADE" });
-Event.belongsTo(User, { onDelete: "CASCADE" });
+Event.belongsTo(User);
 
 Admin.hasMany(Event, { onDelete: "CASCADE" });
 Event.belongsTo(Admin, { onDelete: "CASCADE" });

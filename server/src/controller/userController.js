@@ -2,6 +2,22 @@ const models = require("../models");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+const getUser = async (req, res, next) => {
+	try {
+		const user = await models.User.findByPk(req.user, {
+			attributes: ["fullname"],
+		});
+		if (!user) {
+			const error = new Error("Not Found");
+			error.status = 404;
+			next(error);
+		}
+		res.status(200).json(user);
+	} catch (error) {
+		next(error);
+	}
+};
+
 const signInUser = async (req, res, next) => {
 	try {
 		const exist = await models.User.findOne({
@@ -14,8 +30,7 @@ const signInUser = async (req, res, next) => {
 			next(error);
 		}
 
-		const pass = await bcrypt.compare(req.body.password, exist.password);
-		if (!pass) {
+		if (req.body.password != exist.password) {
 			const error = new Error("Password is wrong");
 			error.status = 400;
 			next(error);
@@ -46,8 +61,6 @@ const signUpUser = async (req, res, next) => {
 			error.status = 404;
 			next(error);
 		}
-		const salt = await bcrypt.genSalt(10);
-		const hashPassword = await bcrypt.hash(req.body.password, salt);
 
 		const exist = await models.User.findOne({
 			where: { username: req.body.username },
@@ -61,7 +74,7 @@ const signUpUser = async (req, res, next) => {
 			const user = await models.User.create({
 				fullname: req.body.fullname,
 				username: req.body.username,
-				password: hashPassword,
+				password: req.body.password,
 				adminId: req.user,
 			});
 
@@ -86,13 +99,10 @@ const getAllUsers = async (req, res, next) => {
 
 const updateUser = async (req, res, next) => {
 	try {
-		const salt = await bcrypt.genSalt(10);
-		const hashPassword = await bcrypt.hash(req.body.password, salt);
-
 		const data = {
 			fullname: req.body.fullname,
 			username: req.body.username,
-			password: hashPassword,
+			password: req.body.password,
 		};
 
 		const update = await models.User.update(data, {
@@ -142,6 +152,7 @@ const deleteUser = async (req, res, next) => {
 
 module.exports = {
 	getAllUsers,
+	getUser,
 	updateUser,
 	deleteUser,
 	signInUser,

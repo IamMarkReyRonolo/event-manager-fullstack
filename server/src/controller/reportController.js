@@ -27,21 +27,9 @@ const addReport = async (req, res, next) => {
 			error.status = 404;
 			next(error);
 		} else {
-			const update = await models.Event.update(
-				{ event_status: req.body.event_status },
-				{
-					where: {
-						id: req.params.eventId,
-					},
-				}
-			);
-			if (update) {
-				res.status(200).json({ message: "Successfully created report" });
-			} else {
-				const error = new Error("Not found");
-				error.status = 404;
-				next(error);
-			}
+			res
+				.status(200)
+				.json({ message: "Successfully created report", report: createReport });
 		}
 	} catch (error) {
 		next(error);

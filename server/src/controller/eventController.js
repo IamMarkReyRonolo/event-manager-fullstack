@@ -16,9 +16,10 @@ const getAllEventsUser = async (req, res, next) => {
 	try {
 		const events = await models.Event.findAll({
 			where: { userId: req.user },
-			include: models.Report,
+			include: [models.Report],
 		});
-		res.status(200).json(events);
+
+		res.status(200).json({ events });
 	} catch (error) {
 		next(error);
 	}
@@ -42,12 +43,10 @@ const getSpecificEvent = async (req, res, next) => {
 
 const createEvent = async (req, res, next) => {
 	try {
-		console.log("wasppp");
 		const adminId = await models.User.findOne({
 			where: { id: parseInt(req.user) },
 			attributes: ["adminId"],
 		});
-		console.log(adminId.adminId);
 		if (!adminId) {
 			const error = new Error("Not Found");
 			error.status = 404;
